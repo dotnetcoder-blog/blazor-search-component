@@ -1,0 +1,92 @@
+﻿@page "/"
+@using System.Text.Json
+
+<PageTitle>Home</PageTitle>
+
+<h1 class="dnc-center">Blazor Reusable Search Component</h1>
+
+<div class="container">
+    <DncSearch TItem="Employee" OnSearch="HandleSearch" PlaceholderText="Search...." ButtonText="Search"/>
+    @if (employees != null)
+    {
+        <table class="table my-5">
+            <thead>
+                <tr>
+                    <th scope="col">Id</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Age</th>
+                    <th scope="col">Gender</th>
+                    <th scope="col">Designation</th>
+                    <th scope="col">Department</th>
+                </tr>
+            </thead>
+            @foreach (var employee in filteredEmployees)
+            {
+                <tbody>
+                    <tr>
+                        <td>@employee.Id</td>
+                        <td>@employee.Name</td>
+                        <td>@employee.Age</td>
+                        <td>@employee.Gender</td>
+                        <td>@employee.Designation</td>
+                        <td>@employee.Department</td>
+                    </tr>
+                </tbody>
+            }
+            @if (filteredEmployees.Count == 0)
+            {
+                <tr>
+                    <td colspan="6">
+                        <p class="dnc-center">No data found</p>
+                    </td>
+                </tr>
+            }
+        </table>
+    }
+</div>
+
+@code{
+    private List<Employee> employees;
+    private List<Employee> filteredEmployees;
+
+    protected override async Task OnInitializedAsync()
+    {
+        employees = await GetEmployees();
+        filteredEmployees = employees;
+    }
+
+    private async Task<List<Employee>> GetEmployees()
+    {
+        var json = await File.ReadAllTextAsync(@"./Data/employees.json");
+        return JsonSerializer.Deserialize<List<Employee>>(json, options: new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+    }
+
+    private void HandleSearch(string searchTerm)
+    {
+        if (string.IsNullOrEmpty(searchTerm))
+        {
+            filteredEmployees = employees;
+        }
+        else
+        {
+            filteredEmployees = employees.Where(v => 
+                v.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                v.Age.ToString().Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                v.Gender.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                v.Designation.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                v.Department.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)
+            ).ToList();
+        }
+    }
+}
+
+
+
+<style>
+    .dnc-center {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 150px;
+    }
+</style>

@@ -1,0 +1,9 @@
+﻿@inherits DncSearchComponent<TItem>
+@typeparam TItem
+
+
+<div class="dnc-search">
+    <i class="fa fa-search dnc-search-icon"></i>
+    <input @bind="searchTerm" @onkeyup="@HandleEnter" type="text" class="form-control" placeholder="@PlaceholderText">
+    <button @onclick="HandleSearch" class="btn @CssButton">@ButtonText</button>
+</div>
